@@ -1,0 +1,14 @@
+.grid-cell {
+    -fx-background-color: lightblue;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+.highlight {
+    -fx-stroke: yellow;
+    -fx-stroke-width: 2;
+}

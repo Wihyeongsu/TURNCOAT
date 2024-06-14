@@ -78,16 +78,20 @@ public class InGameController {
     int cellRow = GridPane.getRowIndex((Node) event.getSource());
     int cellCol = GridPane.getColumnIndex((Node) event.getSource());
 
+    System.out.println("Cell clicked: " + cellRow + " " + cellCol);
+
     if(game.getBoard().isPresent(cellRow, cellCol)){
       System.out.println("That cell already contains stone!");
       return;
     }
 
-    System.out.println("Cell clicked: " + cellRow + " " + cellCol);
-
     deleteHighlight();
 
     if (game.getSelectedStone() != null) {
+      if (!game.isMovedOneCell(cellRow, cellCol)){
+        System.out.println("Illegal move!");
+        return;
+      }
       // selectedStone position
       int stoneRow = game.getSelectedStone().getRow();
       int stoneCol = game.getSelectedStone().getCol();
@@ -118,6 +122,11 @@ public class InGameController {
     Integer row = GridPane.getRowIndex((Node) event.getSource());
     Integer col = GridPane.getColumnIndex((Node) event.getSource());
     if (row == null || col == null) {
+      System.out.println("Null");
+      return;
+    }
+    if (game.isLastMovedStone(row, col)) {
+      System.out.println("Illegal selection!");
       return;
     }
 
@@ -129,15 +138,16 @@ public class InGameController {
       int selectedStoneColor = selectedStone.getColor();
 
       if (selectedStoneColor == currentPlayerColor) {
-        System.out.println("Stone clicked!");
-        System.out.println("Stone color"  + selectedStoneColor);
-        System.out.println("Player color: " + currentPlayerColor);
-        System.out.println("Clickedstone: " + clickedStone);
 
         // highlight
         clickedStone = (Shape) event.getSource();
         deleteHighlight();
         clickedStone.getStyleClass().add("highlight");
+
+        System.out.println("Stone clicked!");
+        System.out.println("Stone color"  + selectedStoneColor);
+        System.out.println("Player color: " + currentPlayerColor);
+        System.out.println("Clickedstone: " + clickedStone);
 
         game.setSelectedStone(row, col);
       }

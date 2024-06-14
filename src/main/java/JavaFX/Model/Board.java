@@ -46,7 +46,6 @@ public class Board {
   }
 
   public void moveStone(int fromRow, int fromCol, int toRow, int toCol) {
-    if(!isMovedOneCell(fromRow, fromCol, toRow, toCol)) return;
     Stone stone = board[fromRow][fromCol];
     board[fromRow][fromCol] = null;
     if (isToggleCell(toRow, toCol)) {
@@ -70,6 +69,24 @@ public class Board {
 
   public boolean isPresent(int row, int col){
     return board[row][col] != null;
+  }
+
+  public void showBoard(){
+    for (int i = 2; i < 7; i++) {
+      for (int j = 2; j < 7; j++) {
+        if (board[i][j] == null) {
+          System.out.print("[] ");
+        }
+        else if (board[i][j].getColor() == 0) {
+          System.out.print("0 ");
+
+        }
+        else if (board[i][j].getColor() == 1) {
+          System.out.print("1 ");
+        }
+      }
+      System.out.println();
+    }
   }
 
   public boolean isConnected4(int row, int col) {

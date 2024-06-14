@@ -18,6 +18,7 @@ public class GameState {
     this.winner = null;
     players[0] = new Player("Player1", 0);
     players[1] = new Player("Player2", 1);
+    board.showBoard();
     System.out.println("Turn: " + players[currentPlayerIndex].getName());
   }
 
@@ -45,6 +46,7 @@ public class GameState {
     selectedStone = null;
     currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     System.out.println("Turn:" + players[currentPlayerIndex].getName());
+    board.showBoard();
   }
 
   public void setSelectedStone(int row, int col){
@@ -65,11 +67,9 @@ public class GameState {
     int currentCol = selectedStone.getCol();
 
     if (selectedStone.getColor() == currentPlayer.getColor()) {
-      if (currentRow != lastMovedRow || currentCol != lastMovedCol) {
-        board.moveStone(currentRow, currentCol, toRow, toCol);
-        lastMovedRow = toRow;
-        lastMovedCol = toCol;
-      }
+      board.moveStone(currentRow, currentCol, toRow, toCol);
+      lastMovedRow = toRow;
+      lastMovedCol = toCol;
     }
 
     // check
@@ -79,5 +79,15 @@ public class GameState {
     } else {
       switchTurn();
     }
+  }
+
+  public boolean isMovedOneCell(int toRow, int toCol){
+    int fromRow = selectedStone.getRow();
+    int fromCol = selectedStone.getCol();
+    return board.isMovedOneCell(fromRow, fromCol, toRow, toCol);
+  }
+
+  public boolean isLastMovedStone(int row, int col){
+    return (lastMovedRow == row && lastMovedCol == col);
   }
 }

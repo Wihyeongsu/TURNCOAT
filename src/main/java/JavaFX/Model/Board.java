@@ -3,6 +3,8 @@ package JavaFX.Model;
 
 import java.util.Random;
 
+import static java.lang.Math.abs;
+
 public class Board {
   private Stone[][] board;
   private boolean[][] toggleCell;
@@ -44,6 +46,7 @@ public class Board {
   }
 
   public void moveStone(int fromRow, int fromCol, int toRow, int toCol) {
+    if(!isMovedOneCell(fromRow, fromCol, toRow, toCol)) return;
     Stone stone = board[fromRow][fromCol];
     board[fromRow][fromCol] = null;
     if (isToggleCell(toRow, toCol)) {
@@ -52,6 +55,13 @@ public class Board {
     stone.setRow(toRow);
     stone.setCol(toCol);
     board[toRow][toCol] = stone;
+  }
+
+  public boolean isMovedOneCell(int fromRow, int fromCol, int toRow, int toCol) {
+    int dy = abs(toRow - fromRow);
+    int dx = abs(toCol - fromCol);
+    if(dy > 1 || dx > 1) return false;
+    return true;
   }
 
   public boolean isToggleCell(int row, int col) {

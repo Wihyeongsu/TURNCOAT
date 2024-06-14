@@ -4,6 +4,7 @@ import JavaFX.Model.Board;
 import JavaFX.Model.GameState;
 import JavaFX.Model.Player;
 import JavaFX.Model.Stone;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -34,75 +35,72 @@ public class InGameController {
   public void initialize() {
     game = new GameState();
     updateTurnLabel();
+    setEventHandler();
+  }
 
-    // set eventhandler
+  public void setEventHandler(){
+    // gridBoard
     for (Node node : gridBoard.getChildren()) {
       if (node instanceof Rectangle) {
         Rectangle rectangle = (Rectangle) node;
         if (rectangle.getWidth() == 80 && rectangle.getHeight() == 80) {
-          rectangle.setOnMouseClicked(event -> handleStoneClick(event));
+          rectangle.setOnMouseClicked(event -> frontEventHandler(event));
           System.out.println("Set EventHandler: " + rectangle.getId());
         }
         else if(rectangle.getWidth() == 104 && rectangle.getHeight() == 104){
-          rectangle.setOnMouseClicked(event -> handleCellClick(event));
+          rectangle.setOnMouseClicked(event -> frontEventHandler(event));
         }
       }
       else if (node instanceof Circle) {
         Circle circle = (Circle) node;
         if (circle.getRadius() == 40) {
-          circle.setOnMouseClicked(event -> handleStoneClick(event));
+          circle.setOnMouseClicked(event -> frontEventHandler(event));
           System.out.println("Set EventHandler: " + circle.getId());
         }
       }
     }
   }
 
-  public void handleCellClick(MouseEvent event) {
-    int nextRow = GridPane.getRowIndex((Node) event.getSource());
-    int nextCol = GridPane.getColumnIndex((Node) event.getSource());
+  // get all events
+  // process corresponding event
+  public void frontEventHandler(Event event) {
+    if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+      if (event.getSource() instanceof Rectangle
+          && ((Rectangle) event.getSource()).getWidth() == 104
+          && ((Rectangle) event.getSource()).getHeight() == 104) {
+        handleCellClick((MouseEvent) event);
+      }
+      else handleStoneClick((MouseEvent) event);
+    }
+  }
 
-    if(game.getBoard().isPresent(nextRow, nextCol)){
-      System.out.println("The cell already contains stone!");
+  public void handleCellClick(MouseEvent event) {
+    int cellRow = GridPane.getRowIndex((Node) event.getSource());
+    int cellCol = GridPane.getColumnIndex((Node) event.getSource());
+
+    if(game.getBoard().isPresent(cellRow, cellCol)){
+      System.out.println("That cell already contains stone!");
       return;
     }
 
-    System.out.println("Cell clicked: " + nextRow + " " + nextCol);
+    System.out.println("Cell clicked: " + cellRow + " " + cellCol);
 
-    // delete highlight
-    for (Node node : gridBoard.getChildren()) {
-      if (node instanceof Shape) {
-        node.getStyleClass().remove("highlight");
-      }
-    }
+    deleteHighlight();
 
     if (game.getSelectedStone() != null) {
       // selectedStone position
-      int currentRow = game.getSelectedStone().getRow();
-      int currentCol = game.getSelectedStone().getCol();
+      int stoneRow = game.getSelectedStone().getRow();
+      int stoneCol = game.getSelectedStone().getCol();
 
-      // toggle color
-      if (game.getBoard().isToggleCell(nextRow, nextCol)) {
-        clickedStone.setFill((game.getSelectedStone().getColor() == 0) ? Color.WHITE : Color.web("#ff6f1f"));
-      }
-
-      // remove node
-      gridBoard.getChildren().removeIf(n -> GridPane.getRowIndex(n) == currentRow
-          && GridPane.getColumnIndex(n) == currentCol
-          && n.equals(clickedStone));
-
-      // add node
-      GridPane.setRowIndex(clickedStone, nextRow);
-      GridPane.setColumnIndex(clickedStone, nextCol);
-      gridBoard.getChildren().add(clickedStone);
-
-      // Clear selected stone
+      toggleNodeColor(cellRow, cellCol);
+      moveNode(stoneRow, stoneCol, cellRow, cellCol);
       clickedStone = null;
 
-      // move selectedStone
-      game.moveStone(nextRow, nextCol);
+      // Move selectedStone
+      game.moveStone(cellRow, cellCol);
     }
 
-    // turntransition
+    // Update turn
     updateTurnLabel();
 
     // Check if the game is over
@@ -112,21 +110,18 @@ public class InGameController {
     }
   }
 
-
-  // 돌 클릭시 돌에 대한 정보를 가져옴
-  // 돌의 색과 플레이어의 색을 비교
-  // 동일할 경우에만 돌 클릭 가능
+  // Get stone info
+  // Compare stone color with player color
+  // Enable to click
   public void handleStoneClick(MouseEvent event) {
-
     // get stone position
     Integer row = GridPane.getRowIndex((Node) event.getSource());
     Integer col = GridPane.getColumnIndex((Node) event.getSource());
-
     if (row == null || col == null) {
       return;
     }
 
-    // get stone data
+    // Get clicked stone data
     Stone selectedStone = game.getBoard().getStoneAt(row, col);
 
     if (selectedStone != null) {
@@ -134,20 +129,44 @@ public class InGameController {
       int selectedStoneColor = selectedStone.getColor();
 
       if (selectedStoneColor == currentPlayerColor) {
-        System.out.println("Stone clicked! Color: " + selectedStoneColor);
-        System.out.println("Player Color: " + currentPlayerColor);
+        System.out.println("Stone clicked!");
+        System.out.println("Stone color"  + selectedStoneColor);
+        System.out.println("Player color: " + currentPlayerColor);
+        System.out.println("Clickedstone: " + clickedStone);
 
         // highlight
         clickedStone = (Shape) event.getSource();
-        System.out.println("clickedStone: " + clickedStone);
-        for (Node node : gridBoard.getChildren()) {
-          if (node instanceof Shape) {
-            node.getStyleClass().remove("highlight");
-          }
-        }
+        deleteHighlight();
         clickedStone.getStyleClass().add("highlight");
 
         game.setSelectedStone(row, col);
+      }
+    }
+  }
+
+  public void toggleNodeColor(int row, int col){
+    // toggle color
+    if (game.getBoard().isToggleCell(row, col)) {
+      clickedStone.setFill((game.getSelectedStone().getColor() == 0) ? Color.WHITE : Color.web("#ff6f1f"));
+    }
+  }
+
+  public void moveNode(int fromRow, int fromCol, int toRow, int toCol){
+    // remove node
+    gridBoard.getChildren().removeIf(n -> GridPane.getRowIndex(n) == fromRow
+        && GridPane.getColumnIndex(n) == fromCol
+        && n.equals(clickedStone));
+
+    // add node
+    GridPane.setRowIndex(clickedStone, toRow);
+    GridPane.setColumnIndex(clickedStone, toCol);
+    gridBoard.getChildren().add(clickedStone);
+  }
+
+  public void deleteHighlight(){
+    for (Node node : gridBoard.getChildren()) {
+      if (node instanceof Shape) {
+        node.getStyleClass().remove("highlight");
       }
     }
   }

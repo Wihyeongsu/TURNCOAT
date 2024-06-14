@@ -14,16 +14,12 @@ public class Board {
   }
 
   private void initializeBoard() {
-    final String ORANGE = "orange";
-    final String WHITE = "white";
-    final String SQUARE = "square";
-    final String CIRCLE = "circle";
 
     for (int i = 1; i < 5; i++) {
-      board[i][1] = new Stone(ORANGE, SQUARE, i, 1);
-      board[i][7] = new Stone(WHITE, CIRCLE, i, 7);
-      board[7-i][1] = new Stone(ORANGE, SQUARE, 7-i, 1);
-      board[7-i][7] = new Stone(WHITE, CIRCLE, 7-i, 7);
+      board[i][1] = new Stone(0, 0, i, 1);
+      board[i][7] = new Stone(1, 1, i, 7);
+      board[8-i][1] = new Stone(0, 0, 8-i, 1);
+      board[8-i][7] = new Stone(1, 1, 8-i, 7);
     }
 
     // toggle 위치 set
@@ -67,7 +63,7 @@ public class Board {
       return false;
     }
 
-    String color = board[row][col].getColor();
+    int color = board[row][col].getColor();
 
     // 가로 방향
     int count = 1;
@@ -144,11 +140,11 @@ public class Board {
     return false;
   }
 
-  private boolean isSameColor(int row, int col, String color) {
-    if (row < 2 || row >= 6 || col < 2 || col >= 6) {
+  private boolean isSameColor(int row, int col, int color) {
+    if (row < 2 || row > 6 || col < 2 || col > 6) {
       return false;
     }
     Stone stone = board[row][col];
-    return stone != null && stone.getColor().equals(color);
+    return stone != null && (stone.getColor() == color);
   }
 }

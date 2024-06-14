@@ -1,44 +1,47 @@
 package JavaFX.Model;
 
 public class Stone {
-  private String color;
-  private String shape;
-  private int row;
-  private int col;
+  // shape: 1 bit
+  // color: 1 bit
+  // row: 3 bit
+  // col: 3 bit
 
-  public Stone(String color, String shape, int row, int col) {
-    this.color = color;
-    this.shape = shape;
-    this.row = row;
-    this.col = col;
+  // shape/color/row/col
+  // 0/0/000/000
+  private int info;
+
+  public Stone(int shape, int color, int row, int col) {
+    info = (shape << 7) + (color << 6) + (row << 3) + col;
   }
 
-  public String getColor() {
-    return color;
+  public int getShape(){
+    return info >> 7;
   }
 
-  public void setColor(String color) {
-    this.color = color;
+  public int getColor() { return (info >> 6) & 1; }
+
+  public void setColor(int color) {
+    info = (getShape() << 7) + (color << 6) + (getRow() << 3) + getCol();
   }
 
   public int getRow() {
-    return row;
+    return (info >> 3) & 7;
   }
 
   public void setRow(int row) {
-    this.row = row;
+    info = (getShape() << 7) + (getColor() << 6) + (row << 3) + getCol();
   }
 
   public int getCol() {
-    return col;
+    return info & 7;
   }
 
   public void setCol(int col) {
-    this.col = col;
+    info = (getShape() << 7) + (getColor() << 6) + (getRow() << 3) + col;
   }
 
   public void toggleColor() {
-    if (color.equals("orange")) setColor("white");
-    else if (color.equals("white")) setColor("orange");
+    if(getColor() == 0) setColor(1);
+    else setColor(0);
   }
 }

@@ -1,8 +1,8 @@
 package JavaFX.Model;
 
 public class GameState {
-  private Board board;
-  private Player[] players = new Player[2];
+  private final Board board;
+  private final Player[] players = new Player[2];
   private int currentPlayerIndex = 0; // player turn
   private boolean isGameOver;
   private Player winner;
@@ -16,8 +16,8 @@ public class GameState {
     this.currentPlayerIndex = 0;
     this.isGameOver = false;
     this.winner = null;
-    players[0] = new Player("Player1", "orange");
-    players[1] = new Player("Player2", "white");
+    players[0] = new Player("Player1", 0);
+    players[1] = new Player("Player2", 1);
     System.out.println("Turn: " + players[currentPlayerIndex].getName());
   }
 
@@ -38,19 +38,12 @@ public class GameState {
   }
 
   public void switchTurn() {
+    selectedStone = null;
     currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     System.out.println("Turn:" + players[currentPlayerIndex].getName());
   }
 
-  public void setSelectedStone(Stone selectedStone){
-    this.selectedStone = selectedStone;
-  }
-
-  public Stone getSelectedStone() {
-    return selectedStone;
-  }
-
-  public void selectStone(int row, int col) {
+  public void setSelectedStone(int row, int col){
     Stone stone = board.getStoneAt(row, col);
 
     if (stone != null && stone.getColor() == players[currentPlayerIndex].getColor()) {
@@ -58,12 +51,16 @@ public class GameState {
     }
   }
 
-  public void moveStone(Stone stone, int toRow, int toCol) {
-    Player currentPlayer = players[currentPlayerIndex];
-    int currentRow = stone.getRow();
-    int currentCol = stone.getCol();
+  public Stone getSelectedStone() {
+    return selectedStone;
+  }
 
-    if (stone != null && stone.getColor().equals(currentPlayer.getColor())) {
+  public void moveStone(int toRow, int toCol) {
+    Player currentPlayer = players[currentPlayerIndex];
+    int currentRow = selectedStone.getRow();
+    int currentCol = selectedStone.getCol();
+
+    if (selectedStone.getColor() == currentPlayer.getColor()) {
       if (currentRow != lastMovedRow || currentCol != lastMovedCol) {
         board.moveStone(currentRow, currentCol, toRow, toCol);
         lastMovedRow = toRow;

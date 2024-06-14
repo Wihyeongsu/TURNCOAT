@@ -2,9 +2,9 @@ package JavaFX.Model;
 
 public class Player {
   private String name;
-  private String color;
+  private int color;
 
-  public Player(String name, String color) {
+  public Player(String name, int color) {
     this.name = name;
     this.color = color;
   }
@@ -13,7 +13,7 @@ public class Player {
     return name;
   }
 
-  public String getColor() {
+  public int getColor() {
     return color;
   }
 

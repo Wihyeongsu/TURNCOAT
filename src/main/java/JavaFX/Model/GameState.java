@@ -21,6 +21,10 @@ public class GameState {
     System.out.println("Turn: " + players[currentPlayerIndex].getName());
   }
 
+  public Player getWinner() {
+    return winner;
+  }
+
   public Board getBoard() {
     return board;
   }
@@ -67,10 +71,11 @@ public class GameState {
         lastMovedCol = toCol;
       }
     }
+
     // check
     if (board.isConnected4(toRow, toCol)) {
       isGameOver = true;
-      winner = currentPlayer;
+      winner = players[board.getStoneAt(toRow, toCol).getColor()];
     } else {
       switchTurn();
     }

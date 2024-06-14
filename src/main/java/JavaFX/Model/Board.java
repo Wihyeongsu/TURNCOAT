@@ -58,6 +58,10 @@ public class Board {
     return toggleCell[row][col];
   }
 
+  public boolean isPresent(int row, int col){
+    return board[row][col] != null;
+  }
+
   public boolean isConnected4(int row, int col) {
     if (board[row][col] == null) {
       return false;

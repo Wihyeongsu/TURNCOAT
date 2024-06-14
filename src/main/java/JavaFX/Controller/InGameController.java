@@ -57,10 +57,14 @@ public class InGameController {
     }
   }
 
-  @FXML
   public void handleCellClick(MouseEvent event) {
     int nextRow = GridPane.getRowIndex((Node) event.getSource());
     int nextCol = GridPane.getColumnIndex((Node) event.getSource());
+
+    if(game.getBoard().isPresent(nextRow, nextCol)){
+      System.out.println("The cell already contains stone!");
+      return;
+    }
 
     System.out.println("Cell clicked: " + nextRow + " " + nextCol);
 
@@ -72,21 +76,13 @@ public class InGameController {
     }
 
     if (game.getSelectedStone() != null) {
-      // clickedStone position
+      // selectedStone position
       int currentRow = game.getSelectedStone().getRow();
       int currentCol = game.getSelectedStone().getCol();
 
-      // move clickedStone
-      game.moveStone(nextRow, nextCol);
-
       // toggle color
       if (game.getBoard().isToggleCell(nextRow, nextCol)) {
-        game.getSelectedStone().toggleColor();
-        if (clickedStone instanceof Circle) {
-          ((Circle) clickedStone).setFill(game.getSelectedStone().getColor().equals("orange") ? Color.WHITE : Color.web("#ff6f1f"));
-        } else if (clickedStone instanceof Rectangle) {
-          ((Rectangle) clickedStone).setFill(game.getSelectedStone().getColor().equals("orange") ? Color.WHITE : Color.web("#ff6f1f"));
-        }
+        clickedStone.setFill((game.getSelectedStone().getColor() == 0) ? Color.WHITE : Color.web("#ff6f1f"));
       }
 
       // remove node
@@ -101,6 +97,9 @@ public class InGameController {
 
       // Clear selected stone
       clickedStone = null;
+
+      // move selectedStone
+      game.moveStone(nextRow, nextCol);
     }
 
     // turntransition
@@ -117,9 +116,7 @@ public class InGameController {
   // 돌 클릭시 돌에 대한 정보를 가져옴
   // 돌의 색과 플레이어의 색을 비교
   // 동일할 경우에만 돌 클릭 가능
-  @FXML
   public void handleStoneClick(MouseEvent event) {
-    System.out.println("Stone clicked");
 
     // get stone position
     Integer row = GridPane.getRowIndex((Node) event.getSource());
@@ -137,6 +134,9 @@ public class InGameController {
       int selectedStoneColor = selectedStone.getColor();
 
       if (selectedStoneColor == currentPlayerColor) {
+        System.out.println("Stone clicked! Color: " + selectedStoneColor);
+        System.out.println("Player Color: " + currentPlayerColor);
+
         // highlight
         clickedStone = (Shape) event.getSource();
         System.out.println("clickedStone: " + clickedStone);
@@ -147,7 +147,7 @@ public class InGameController {
         }
         clickedStone.getStyleClass().add("highlight");
 
-        game.selectStone(row, col);
+        game.setSelectedStone(row, col);
       }
     }
   }
@@ -170,7 +170,10 @@ public class InGameController {
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
     alert.setTitle("Game Over");
     alert.setHeaderText(null);
-    alert.setContentText(game.getCurrentPlayer().getName() + " wins!");
+    alert.setContentText(game.getWinner().getName() + " wins!");
     alert.showAndWait();
+
+    System.out.println("Game Over!");
+    System.out.println(game.getWinner().getName() + "wins!");
   }
 }
